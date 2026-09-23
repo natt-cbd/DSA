@@ -1,0 +1,41 @@
+#include<stdio.h>
+#include<stdbool.h>
+
+#define MAX 10
+
+typedef bool Set[MAX];
+
+
+bool addElement(Set s, int item); // dili pointer ang s, bcs its already an array == set[] == *s
+bool removeElement(Set s, int item);
+
+void display(Set s);
+
+void setUnion(Set a, Set b, Set result); // if you want to return an array (like not void), you use bool pointer
+bool *setIntersection(Set a, Set b);
+bool *setDifference(Set a, Set b); // to return an array, will not work without malloc -- BOOL ARRAY
+
+int main(){
+    Set arrayyy[MAX];
+    
+    addElement(*arrayyy, 1);
+    removeElement(*arrayyy, 5);
+}
+
+bool addElement(Set s, int item){
+    if(s[item] == 1){
+        return 0;
+    } else {
+        s[item] = 1;
+        return 1;
+    }
+}
+
+bool removeElement(Set s, int item){
+    if(s[item] == 0){
+        return 0;
+    } else {
+        s[item] = 0;
+        return 1;
+    }
+}
