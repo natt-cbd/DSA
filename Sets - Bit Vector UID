@@ -21,10 +21,54 @@ bool *setDifference(Set a, Set b);       // Dynamic memory allocation return
 
 
 int main(){
-    Set arrayyy[MAX];
+    Set A, B, C;
     
-    addElement(*arrayyy, 1);
-    removeElement(*arrayyy, 5);
+    // Always initialize sets to false/0 in C
+    initSet(A);
+    initSet(B);
+    initSet(C);
+
+    // Populate Set A = {1, 3, 7}
+    addElement(A, 1);
+    addElement(A, 3);
+    addElement(A, 7);
+
+    // Populate Set B = {3, 4, 7, 9}
+    addElement(B, 3);
+    addElement(B, 4);
+    addElement(B, 7);
+    addElement(B, 9);
+
+    printf("Set A: ");
+    display(A);
+
+    printf("Set B: ");
+    display(B);
+
+    // Demonstration of removeElement
+    removeElement(A, 1);
+    printf("Set A after removing 1: ");
+    display(A);
+    addElement(A, 1); // Re-add for algebra operations
+
+    // 1. Union (Modifies output array directly)
+    setUnion(A, B, C);
+    printf("Union (A U B): ");
+    display(C);
+
+    // 2. Intersection (Returns dynamically allocated array)
+    bool *intersectionResult = setIntersection(A, B);
+    printf("Intersection (A n B): ");
+    display(intersectionResult);
+    free(intersectionResult); // Free heap memory
+
+    // 3. Difference (Returns dynamically allocated array)
+    bool *differenceResult = setDifference(A, B);
+    printf("Difference (A - B): ");
+    display(differenceResult);
+    free(differenceResult); // Free heap memory
+
+    return 0;
 }
 
 bool addElement(Set s, int item){
