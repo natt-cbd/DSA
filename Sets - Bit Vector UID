@@ -1,5 +1,6 @@
-#include<stdio.h>
-#include<stdbool.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
 
 #define MAX 10
 
@@ -20,10 +21,98 @@ bool *setIntersection(Set a, Set b);     // Dynamic memory allocation return ; t
 bool *setDifference(Set a, Set b);       // Dynamic memory allocation return
 
 
+//--------------------------------------------------------------------------------
+
+void initSet(Set s){        //set every index of the static array as FALSE / 0 first
+    for(int i = 0; i < MAX; ++i){
+        s[i] = false;
+    }
+}
+
+// Adds element to set; returns true if added, false if out of bounds or already present
+bool addElement(Set s, int item) {
+    if (item < 0 || item >= MAX) return false; // Bounds guard
+    if (s[item]) return false;                 // Already present
+    
+    s[item] = true;
+    return true;
+}
+
+// Removes element from set; returns true if removed, false if not present or out of bounds
+bool removeElement(Set s, int item) {
+    if (item < 0 || item >= MAX) return false; // Bounds guard
+    if (!s[item]) return false;                // NOT present
+    
+    s[item] = false;
+    return true;
+}
+
+// Checks set membership
+bool isMember(Set s, int item) {
+    if (item < 0 || item >= MAX) return false;
+    return s[item];
+}
+
+// Displays set in traditional mathematical set notation { x1, x2, ... }
+void display(Set s) {
+    printf("{ ");
+    bool first = true;
+    for (int i = 0; i < MAX; i++) {
+        if (s[i]) {
+            if (!first) printf(", ");
+            printf("%d", i);
+            first = false;
+        }
+    }
+    printf(" }\n");
+}
+
+// Union: result = A U B
+void setUnion(Set a, Set b, Set result) {
+    for (int i = 0; i < MAX; i++) {
+        result[i] = a[i] || b[i];
+    }
+}
+
+// Intersection: returns heap-allocated pointer for A n B
+bool *setIntersection(Set a, Set b) {
+    bool *result = (bool *)malloc(sizeof(bool) * MAX);
+    if (result == NULL) return NULL; // Memory allocation check
+
+    for (int i = 0; i < MAX; i++) {
+        result[i] = a[i] && b[i];
+    }
+    return result;
+}
+
+// Difference: returns heap-allocated pointer for A - B
+bool *setDifference(Set a, Set b) {
+    bool *result = (bool *)malloc(sizeof(bool) * MAX);
+    if (result == NULL) return NULL;
+
+    for (int i = 0; i < MAX; i++) {
+        result[i] = a[i] && !b[i];
+    }
+    return result;
+}
+
+// Merges Set A and Set B into a new heap-allocated array
+bool *mergeSetNew(Set a, Set b) {
+    bool *result = (bool *)malloc(sizeof(bool) * MAX);
+    if (result == NULL) return NULL; // Memory allocation check
+
+    for (int i = 0; i < MAX; i++) {
+        result[i] = a[i] || b[i];
+    }
+    return result;
+}
+
+//--------------------------------------------------------------------------------
+
 int main(){
     Set A, B, C;
     
-    // Always initialize sets to false/0 in C
+    // Always initialize sets to false/0 
     initSet(A);
     initSet(B);
     initSet(C);
@@ -67,24 +156,11 @@ int main(){
     printf("Difference (A - B): ");
     display(differenceResult);
     free(differenceResult); // Free heap memory
+    
+    bool *mergee = mergeSetNew(A, B);
+    printf("Set A Merge with B: ");
+    display(mergee);
+    free(mergee); // Free heap memory
 
     return 0;
-}
-
-bool addElement(Set s, int item){
-    if(s[item] == 1){
-        return 0;
-    } else {
-        s[item] = 1;
-        return 1;
-    }
-}
-
-bool removeElement(Set s, int item){
-    if(s[item] == 0){
-        return 0;
-    } else {
-        s[item] = 0;
-        return 1;
-    }
 }
