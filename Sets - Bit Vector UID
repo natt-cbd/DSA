@@ -3,17 +3,22 @@
 
 #define MAX 10
 
-typedef bool Set[MAX];
+typedef bool Set[MAX]; // set represented as array of booleans
 
-
+// Core Set Operations
+void initSet(Set s);
 bool addElement(Set s, int item); // dili pointer ang s, bcs its already an array == set[] == *s
 bool removeElement(Set s, int item);
+bool isMember(Set s, int item);
+void display(Set s);
 
 void display(Set s);
 
-void setUnion(Set a, Set b, Set result); // if you want to return an array (like not void), you use bool pointer
-bool *setIntersection(Set a, Set b);
-bool *setDifference(Set a, Set b); // to return an array, will not work without malloc -- BOOL ARRAY
+// Set Algebra Operations
+void setUnion(Set a, Set b, Set result); // Pass-by-pointer array output; if you want to return an array (like not void), you use bool pointer
+bool *setIntersection(Set a, Set b);     // Dynamic memory allocation return ; to return an array, will not work without malloc -- BOOL ARRAY
+bool *setDifference(Set a, Set b);       // Dynamic memory allocation return
+
 
 int main(){
     Set arrayyy[MAX];
