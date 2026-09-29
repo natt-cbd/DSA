@@ -3,6 +3,7 @@
 
 #define MAX 20
 
-typedef 20{
-  
-}
+typedef struct{
+  int array[MAX];
+  int count;
+} Set;
