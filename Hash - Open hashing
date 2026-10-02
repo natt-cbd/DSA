@@ -63,9 +63,12 @@ void deleteDict(OpenDict D, char elem) {
     NodePtr *trav = &(D[index]);
     
     for(; *trav && (*trav)->elem != elem; trav = &(*trav)->next){} //insert sorted
-    NodePtr temp = *trav;
-    *trav = temp->next;
-    free(temp);
+
+    if (*trav != NULL) {     // Guard against crash if element is not in the set
+        NodePtr temp = *trav;
+        *trav = temp->next;     // Unlink target node
+        free(temp);             // Free memory
+    }
 }
 
 int main() {
