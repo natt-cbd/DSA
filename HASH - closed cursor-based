@@ -55,7 +55,7 @@ void initDict(CursorDict *D) {
 void insertDict(CursorDict *D, char elem) {
     // TODO: 
     // 1. Compute H = HASH(elem)
-    // 2. If table[H] is EMPTY or DELETED, store elem directly at H --- check for duplicates !!
+    // 2. If table[H] is EMPTY or DELETED, store elem directly at H --- check for duplicates (both in prime AND synonym list) !!
     // 3. Else, pull index from D->avail, store elem, and append to table[H].next chain
     
     int index = HASH(elem);
