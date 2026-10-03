@@ -34,7 +34,7 @@ void displayDict(CursorDict D) {
 void initDict(CursorDict *D) {
     // TODO: 
     // 1. Prime area (0..5): data = EMPTY, next = -1
-    // 2. Synonym area (6..9): link next pointers sequentially to form free list
+    // 2. Synonym area (6..9): link next pointers sequentially to form free list (very last node on free/avail list should be -1)
     // 3. Set D->avail = 6
     
     D->avail = 6;
@@ -44,87 +44,88 @@ void initDict(CursorDict *D) {
         D->table[i].next = -1;
     }
     
-    for (int i = 6; i < MAX - 1; ++i) {
+    for(int i = 6; i <= MAX - 1; ++i){
         D->table[i].data = EMPTY;
-        D->table[i].next = i + 1;
+        
+        if(i == MAX - 1){
+            D->table[i].next = -1;
+        } else {
+            D->table[i].next = i + 1;
+        }
     }
-    D->table[MAX - 1].data = EMPTY;
-    D->table[MAX - 1].next = -1; // End of avail list
 }
 
 void insertDict(CursorDict *D, char elem) {
     // TODO: 
     // 1. Compute H = HASH(elem)
-    // 2. If table[H] is EMPTY or DELETED, store elem directly at H --- check for duplicates (both in prime AND synonym list) !!
-    // 3. Else, pull index from D->avail, store elem, and append to table[H].next chain
+    // 2. If table[H] is EMPTY or DELETED, store elem directly at H 
+    // 3. check for duplicates (both in prime AND synonym list) !!
+    // 4. Else, pull index from D->avail, store elem, and append to table[H].next chain
     
     int index = HASH(elem);
     
-    // If prime slot is empty/deleted, store directly in prime area
-    if (D->table[index].data == EMPTY || D->table[index].data == DELETED) {
+    if(D->table[index].data == EMPTY || D->table[index].data == DELETED){
         D->table[index].data = elem;
         return;
     }
     
-    // Traverse chain to check for duplicates
-    int *trav = &(D->table[index].next);
-    if (D->table[index].data == elem) return; // Duplicate in prime slot
+    if(D->table[index].data == elem) return; //this one checks if the slot that was NOT empty or deleted already 
+                                            //has the elem u want to insert (bale duplicate na sha ganon)
     
-    while (*trav != -1) {
-        if (D->table[*trav].data == elem) return; // Duplicate in synonym list
+    int *trav = &(D->table[index].next); //traverses thru the synonym list to check for duplicate
+    while(*trav != -1){
+        if(D->table[*trav].data == elem) return; 
         trav = &(D->table[*trav].next);
     }
     
-    // If synonym area has space, allocate from avail
-    if (D->avail != -1) {
-        int newNode = D->avail;
-        D->avail = D->table[newNode].next; // Advance avail head
+    //so if the PRIME SLOT is OCCUPIED and it is NOT a DUPLICATE
+    if(D->avail != -1){ //if synonym list is not full
+        int newIndex = D->avail;
+        D->avail = D->table[newIndex].next;
         
-        D->table[newNode].data = elem;
-        D->table[newNode].next = -1;
-        *trav = newNode; // Link into the synonym chain
+        D->table[newIndex].data = elem;
+        D->table[newIndex].next = -1;
+        *trav = newIndex; //link into the synonym chain
     }
 }
 
 void deleteDict(CursorDict *D, char elem) {
     // TODO: Search key in prime slot or linked synonym chain. Unlink node and recycle index to avail.
-    
-    int index = HASH(elem);
-    
-    // Check if key is in the prime slot
-    if (D->table[index].data == elem) {
-        if (D->table[index].next == -1) {
-            // No synonyms attached
-            D->table[index].data = DELETED;
-        } else {
-            // Promote the first synonym node into the prime slot
-            int synonymIdx = D->table[index].next;
-            D->table[index].data = D->table[synonymIdx].data;
-            D->table[index].next = D->table[synonymIdx].next;
-            
-            // Recycle the vacated synonym node back to avail
-            D->table[synonymIdx].data = EMPTY;
-            D->table[synonymIdx].next = D->avail;
-            D->avail = synonymIdx;
-        }
-        return;
-    }
-    
-    // Traversal for target in synonym chain
-    int *trav = &(D->table[index].next);
-    while (*trav != -1 && D->table[*trav].data != elem) {
-        trav = &(D->table[*trav].next);
-    }
-    
-    if (*trav != -1) { // Found in synonym list
-        int temp = *trav;
-        *trav = D->table[temp].next; // Unlink target node
-        
-        // Recycle unlinked node back to avail list
-        D->table[temp].data = EMPTY;
-        D->table[temp].next = D->avail;
-        D->avail = temp;
-    }
+    // 1. check if key is in prime slot
+    // 2. set as DELETED directly if the next is -1 (no synonyms attached); else promote the first synonym node into the prime slot -- put the vacated synonym node balik sa avail list
+    // 3. if the key is NOT in prime slot (in synonym list) -- butterfly func to find elem
+    // 4. recheck if trav (from butterfly func) is not -1 -- unlink THEN put the unlinked node balik sa avail list
+   
+   int index = HASH(elem);
+   
+   if(D->table[index].data == elem){
+       if(D->table[index].next == -1){ //if it has NO SYNONYMS attached
+           D->table[index].data = DELETED; 
+       } else {
+           int synoIndex = D->table[index].next;
+           
+           D->table[index].data = D->table[synoIndex].data;
+           D->table[index].next = D->table[synoIndex].next;
+           
+           D->table[synoIndex].data = EMPTY;
+           D->table[synoIndex].next = D->avail;
+           D->avail = synoIndex;
+       }
+       
+       return; //DONT FORGET !!! para di na sya mag go down pa
+   }
+   
+   int *trav = &(D->table[index].next);
+   for(; *trav != -1 && D->table[*trav].data != elem; trav = &(D->table[*trav].next)){}
+   
+   if(*trav != -1){
+       int temp = *trav;
+       *trav = D->table[temp].next;
+       
+       D->table[temp].data = EMPTY;
+       D->table[temp].next = D->avail;
+       D->avail = temp;
+   }
 }
 
 int main() {
