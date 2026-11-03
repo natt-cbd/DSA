@@ -1,0 +1,61 @@
+#include<stdio.h>
+#include<string.h>
+
+int problem1(){
+    //Write a hash function that returns a hash value between 0 to 18. The hash value is the remainder when the sum of all the digits of x is divided by 19
+
+    int x = 987;
+    int num = 0;
+    int temp = x;
+
+    while(temp > 0){
+        num += temp % 10 ;
+
+        temp = temp / 10;
+
+    }
+
+    int rsult = num % 19;
+
+    printf("%d\n", rsult);
+}
+
+int problem2(){
+    // Prompt: Write a hash function that accepts a 2-digit integer $x$, squares it, and returns the middle digit(s) of the result.
+    
+    int x = 12;
+    
+    int num = x * x;
+    int temp = num;
+    int ctr = 0;
+    
+    while(temp > 0){
+        ctr++;
+        temp /= 10;
+    }
+    
+    int result;
+    
+    for(int i = ctr / 2; i > 0; --i){
+        result = num % 10;
+    }
+    
+    printf("%d\n", result);
+}
+
+int problem3(){
+    //Write a hash function for a hash table of size 10 (0 to 9). The input is a string (e.g., a cat). 
+    //The hash value is the sum of the string's length and the ASCII code of its last character, modulo 10 (e.g., a cat = 9). 
+    
+    char *string = "cat";
+    
+    int num = strlen(string) + string[strlen(string) - 1];
+    
+    printf("%d\n", num % 10);
+}
+
+int main(){
+    problem1();
+    problem2();
+    problem3();
+}
