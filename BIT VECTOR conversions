@@ -1,0 +1,168 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// --- FUNCTION PROTOTYPES FOR YOU TO PRACTICE ---
+int *wordToBitVector(short int codes[], int size);
+char *bitVectorToAscii(int bits[], int totalBits);
+int *asciiToBitVector(char *str);
+short int *bitVectorToWord(int bits[], int totalWords);
+
+// --- HELPER DISPLAY FUNCTIONS ---
+void displayBitPattern(int bits[], int totalBits);
+
+int main(void)
+{
+    // Test case: 4 short ints representing an 8-letter item
+    short int codes[4] = {20047, 21573, 16975, 20299};
+    int choice;
+
+    do {
+        printf("\n=========================================\n");
+        printf("    BIT MANIPULATION & CONVERSION LAB    \n");
+        printf("=========================================\n");
+        printf("Current Working Words: %d %d %d %d\n\n", codes[0], codes[1], codes[2], codes[3]);
+        printf("[1] Word -> Bit Vector -> ASCII Message\n");
+        printf("[2] ASCII String -> Bit Vector -> Word Array\n");
+        printf("[3] Word -> ASCII (Direct Conversion)\n");
+        printf("[4] Exit\n");
+        printf("Enter your choice: ");
+
+        if (scanf("%d", &choice) != 1) {
+            printf("Invalid input.\n");
+            break;
+        }
+
+        if (choice == 1) {
+            // Path: Word -> Bit Vector -> ASCII
+            int *bits = wordToBitVector(codes, 4);
+            printf("\n--- Step 1: Bit Vector (64 bits) ---\n");
+            displayBitPattern(bits, 64);
+            
+            char *msg = bitVectorToAscii(bits, 64);
+            printf("\n--- Step 2: Recovered ASCII Message ---\n");
+            printf("%s\n", msg);
+
+            free(bits);
+            free(msg);
+
+        } else if (choice == 2) {
+            // Path: ASCII -> Bit Vector -> Word Array
+            char inputStr[9];
+            printf("\nEnter an 8-letter word to encode: ");
+            scanf("%s", inputStr);
+
+            int *bits = asciiToBitVector(inputStr);
+            printf("\n--- Step 1: Bit Vector (64 bits) ---\n");
+            displayBitPattern(bits, 64);
+
+            short int *newWords = bitVectorToWord(bits, 4);
+            printf("\n--- Step 2: Converted Word Array ---\n");
+            printf("{%d, %d, %d, %d}\n", newWords[0], newWords[1], newWords[2], newWords[3]);
+
+            free(bits);
+            free(newWords);
+
+        } else if (choice == 3) {
+            // Path: Word -> ASCII (Direct/Combined shortcut)
+            int *bits = wordToBitVector(codes, 4);
+            char *msg = bitVectorToAscii(bits, 64);
+            printf("\nDirect Word-to-ASCII Message: %s\n", msg);
+            free(bits);
+            free(msg);
+        }
+
+    } while (choice != 4);
+
+    printf("\nExiting lab. Keep practicing! Good luck!\n");
+    return 0;
+}
+
+// --- HELPER UTILITY ---
+void displayBitPattern(int bits[], int totalBits)
+{
+    for (int i = 0; i < totalBits; i++) {
+        printf("%d", bits[i]);
+        if ((i + 1) % 16 == 0 && i != totalBits - 1) {
+            printf(" "); // Space out every 16 bits for readability
+        }
+    }
+    printf("\n");
+}
+
+
+// =========================================================================
+//                          YOUR PRACTICE ZONE
+// =========================================================================
+
+// 1. CONVERT: Word Array (short int[]) -> Bit Vector (int[])
+int *wordToBitVector(short int codes[], int size)
+{
+    int *result = malloc(sizeof(int) * (size * 16));
+    if (result == NULL) return NULL;
+    
+    int ctr = 0;
+    for (int j = 0; j < size; j++) {
+        for (int i = 15; i >= 0; --i) {
+            result[ctr++] = (codes[j] >> i) & 1;
+        }
+    }
+    return result;
+}
+
+// 2. CONVERT: Bit Vector (int[]) -> ASCII Message (char[])
+char *bitVectorToAscii(int bits[], int totalBits)
+{
+    int numChars = totalBits / 8;
+    char *string = malloc(sizeof(char) * (numChars + 1));
+    if (string == NULL) return NULL;
+    
+    string[numChars] = '\0';
+    for(int i = 0; i < numChars; ++i){
+        string[i] = 0; // Initialize byte
+    }
+    
+    for (int i = 0; i < totalBits; ++i) {
+        int index = i / 8;
+        string[index] = (string[index] << 1) | bits[i];
+    }
+    
+    return string;
+}
+
+// 3. CONVERT: ASCII String (char[]) -> Bit Vector (int[])
+// TODO for practice: Take an 8-character string, pull out each bit from left-to-right (MSB to LSB), and store into a 64-bit array!
+int *asciiToBitVector(char *str)
+{
+    int *result = malloc(sizeof(int) * 64);
+    if (result == NULL) return NULL;
+    
+    int ctr = 0;
+    for (int c = 0; c < 8; c++) {
+        // Hint: Similar to codes, shift each character down from 7 to 0 and extract via & 1
+        for (int i = 7; i >= 0; --i) {
+            result[ctr++] = (str[c] >> i) & 1;
+        }
+    }
+    
+    return result;
+}
+
+// 4. CONVERT: Bit Vector (int[]) -> Word Array (short int[])
+// TODO for practice: Group the 64 bits into blocks of 16, and use shift-and-accumulate to rebuild each short int!
+short int *bitVectorToWord(int bits[], int totalWords)
+{
+    short int *result = malloc(sizeof(short int) * totalWords);
+    if (result == NULL) return NULL;
+    
+    for (int w = 0; w < totalWords; w++) {
+        short int word = 0;
+        for (int i = 0; i < 16; i++) {
+            int bitIndex = (w * 16) + i;
+            word = (word << 1) | bits[bitIndex];
+        }
+        result[w] = word;
+    }
+    
+    return result;
+}
